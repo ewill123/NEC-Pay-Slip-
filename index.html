@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payslip Generator</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <header class="text-center mb-4">
+        <img src="nec.png" alt="NEC Logo" class="logo mb-3" />
+        <h1 class="header-title">PAY SLIP GENERATOR</h1>
+      </header>
+      <form id="payslipForm" class="shadow p-4 rounded bg-white">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="name">Employee Name:</label>
+            <input type="text" class="form-control" id="name" required />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="position">Position:</label>
+            <input type="text" class="form-control" id="position" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="salary">Basic Salary ($):</label>
+            <input type="number" class="form-control" id="salary" required />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="overtime">Overtime Hours:</label>
+            <input type="number" class="form-control" id="overtime" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="deductions">Deductions ($):</label>
+            <input
+              type="number"
+              class="form-control"
+              id="deductions"
+              required
+            />
+          </div>
+          <div class="form-group col-md-6">
+            <label for="tax">Tax (%):</label>
+            <input type="number" class="form-control" id="tax" required />
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn btn-primary btn-block"
+          onclick="generatePayslip()"
+        >
+          Generate Payslip
+        </button>
+        <button
+          type="button"
+          class="btn btn-secondary btn-block"
+          onclick="addEmployee()"
+        >
+          Add Employee
+        </button>
+        <button type="button" class="btn-clear" onclick="clearInputs()">Clear Inputs</button>
+      </form>
+
+      <div id="payslip" class="payslip hidden mt-5 shadow p-4 rounded bg-white">
+        <h2 class="text-center">Payslip</h2>
+        <p><strong>Name:</strong> <span id="payslipName"></span></p>
+        <p><strong>Position:</strong> <span id="payslipPosition"></span></p>
+        <p><strong>Basic Salary:</strong> $<span id="payslipSalary"></span></p>
+        <p><strong>Overtime:</strong> $<span id="payslipOvertime"></span></p>
+        <p>
+          <strong>Deductions:</strong> $<span id="payslipDeductions"></span>
+        </p>
+        <p><strong>Tax:</strong> $<span id="payslipTax"></span></p>
+        <hr />
+        <p><strong>Net Pay:</strong> $<span id="payslipNetPay"></span></p>
+        <button
+          type="button"
+          class="btn btn-success btn-block"
+          onclick="printPayslip()"
+        >
+          Print Payslip
+        </button>
+        <button
+          type="button"
+          class="btn btn-info btn-block"
+          onclick="generatePDF()"
+        >
+          Download PDF
+        </button>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="scripts.js"></script>
+  </body>
+</html>
