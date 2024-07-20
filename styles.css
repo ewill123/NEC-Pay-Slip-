@@ -119,8 +119,8 @@ body {
 }
 
 .logo {
-  width: 262px;
-  height: 100px;
+  width: 291px;
+  height: 97px;
 }
 
 .payslip {
@@ -197,4 +197,15 @@ body {
     top: 0;
     width: 100%;
   }
+}
+.forlogo {
+  width: 204px; /* Adjust the width as needed */
+  height: auto;
+}
+.text-center {
+  text-decoration: underline;
+  font-size: 44px;
+  margin-bottom: 130px;
+  margin-top: 35px;
+  font-family: inherit;
 }
