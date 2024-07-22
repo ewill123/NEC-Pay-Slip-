@@ -130,14 +130,17 @@ function updateYTD(employee, grossPay, deductions, netPay) {
   document.getElementById("ytdNetPay").innerText =
     employee.ytdNetPay.toFixed(2);
 }
+
 // Function to download payslip as PDF
 function downloadPayslipAsPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  const payslipContent = document.getElementById("payslip").innerHTML;
-  doc.fromHTML(payslipContent, 10, 10);
-  doc.save("payslip.pdf");
+  html2canvas(document.getElementById("payslip")).then((canvas) => {
+    const imgData = canvas.toDataURL("image/png");
+    doc.addImage(imgData, "PNG", 10, 10);
+    doc.save("payslip.pdf");
+  });
 }
 
 // Function to print payslip
