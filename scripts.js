@@ -193,3 +193,15 @@ function clearInputs() {
   document.getElementById("deductions").value = "";
   document.getElementById("tax").value = "";
 }
+// Function to download payslip as PDF
+function downloadPayslipAsPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  html2canvas(document.getElementById("payslip")).then((canvas) => {
+    const imgData = canvas.toDataURL("image/png");
+    doc.addImage(imgData, "PNG", 10, 10);
+    doc.save("payslip.pdf");
+  });
+}
+
