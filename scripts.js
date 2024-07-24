@@ -1,107 +1,81 @@
 let employees = [];
 
-// Load employee data from localStorage on page load
-window.onload = function () {
-  const storedEmployees = localStorage.getItem("employees");
+window.onload = function() {
+  const storedEmployees = localStorage.getItem('employees');
   if (storedEmployees) {
     employees = JSON.parse(storedEmployees);
   }
 };
 
-// Function to generate payslip
 function generatePayslip() {
   const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
 
-  // Check if employee exists
   const employee = employees.find((emp) => emp.name === name);
   if (!employee) {
     alert("Employee not found. Please add the employee first.");
     return;
   }
 
-  // Get form values
   const position = document.getElementById("position").value;
   const salary = parseFloat(document.getElementById("salary").value);
-  const overtime = parseFloat(document.getElementById("overtime").value);
   const deductions = parseFloat(document.getElementById("deductions").value);
   const taxRate = parseFloat(document.getElementById("tax").value);
 
-  // Calculations
-  const hourlyRate = salary / 160; // Assuming 160 working hours per month
-  const overtimePay = overtime * hourlyRate;
-  const grossPay = salary + overtimePay;
+  const grossPay = salary;
   const tax = (grossPay * taxRate) / 100;
   const netPay = grossPay - deductions - tax;
 
-  // Display payslip details
-  displayPayslip({
+  const payslipDetails = {
     name,
+    email,
     position,
     salary,
-    overtimePay,
     deductions,
     tax,
     netPay,
-  });
+  };
+  displayPayslip(payslipDetails);
 
-  // Update YTD values for the employee
   updateYTD(employee, grossPay, deductions, netPay);
 
-  // Clear form inputs
   document.getElementById("payslipForm").reset();
+
+  sendPayslipEmail(email, payslipDetails);
 }
 
-// Function to display payslip details
-function displayPayslip({
-  name,
-  position,
-  salary,
-  overtimePay,
-  deductions,
-  tax,
-  netPay,
-}) {
-  document.getElementById("payslipName").innerText = name;
-  document.getElementById("payslipPosition").innerText = position;
-  document.getElementById("payslipSalary").innerText = salary.toFixed(2);
-  document.getElementById("payslipOvertime").innerText = overtimePay.toFixed(2);
-  document.getElementById("payslipDeductions").innerText =
-    deductions.toFixed(2);
-  document.getElementById("payslipTax").innerText = tax.toFixed(2);
-  document.getElementById("payslipNetPay").innerText = netPay.toFixed(2);
+function displayPayslip({ name, email, position, salary, deductions, tax, netPay }) {
+  document.getElementById("payslipName").innerText = `Name: ${name}`;
+  document.getElementById("payslipEmail").innerText = `Email: ${email}`;
+  document.getElementById("payslipPosition").innerText = `Position: ${position}`;
+  document.getElementById("payslipSalary").innerText = `Gross Incom: $${salary.toFixed(2)}`;
+  document.getElementById("payslipDeductions").innerText = `Incom Tax: $${deductions.toFixed(2)}`;
+  document.getElementById("payslipTax").innerText = `Nascorp Tax: $${tax.toFixed(2)}`;
+  document.getElementById("payslipNetPay").innerText = `Net Pay: $${netPay.toFixed(2)}`;
 
-  // Show the payslip
   document.getElementById("payslip").classList.remove("hidden");
 }
 
-// Function to add employee
 function addEmployee() {
+  const email = document.getElementById("email").value;
   const name = document.getElementById("name").value;
   const position = document.getElementById("position").value;
   const salary = parseFloat(document.getElementById("salary").value);
-  const overtime = parseFloat(document.getElementById("overtime").value);
   const deductions = parseFloat(document.getElementById("deductions").value);
   const taxRate = parseFloat(document.getElementById("tax").value);
 
-  if (
-    !name ||
-    !position ||
-    isNaN(salary) ||
-    isNaN(overtime) ||
-    isNaN(deductions) ||
-    isNaN(taxRate)
-  ) {
+  if (!name || !position || !email || isNaN(salary) || isNaN(deductions) || isNaN(taxRate)) {
     alert("Please fill all the fields correctly.");
     return;
   }
 
-  const employeeId = employees.length + 1; // Simple incremental ID
+  const employeeId = employees.length + 1;
   const employee = {
     employeeId,
+    email,
     name,
     position,
     salary,
-    overtime,
     deductions,
     taxRate,
     ytdEarnings: 0,
@@ -110,98 +84,137 @@ function addEmployee() {
   };
 
   employees.push(employee);
-  localStorage.setItem("employees", JSON.stringify(employees)); // Save to localStorage
+  localStorage.setItem('employees', JSON.stringify(employees));
   alert("Employee added successfully!");
-  document.getElementById("payslipForm").reset();
 }
 
-// Function to update YTD values for an employee
 function updateYTD(employee, grossPay, deductions, netPay) {
   employee.ytdEarnings += grossPay;
   employee.ytdDeductions += deductions;
   employee.ytdNetPay += netPay;
 
-  localStorage.setItem("employees", JSON.stringify(employees)); // Update localStorage
-
-  document.getElementById("ytdEarnings").innerText =
-    employee.ytdEarnings.toFixed(2);
-  document.getElementById("ytdDeductions").innerText =
-    employee.ytdDeductions.toFixed(2);
-  document.getElementById("ytdNetPay").innerText =
-    employee.ytdNetPay.toFixed(2);
-}
-
-// Function to download payslip as PDF
-function downloadPayslipAsPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  html2canvas(document.getElementById("payslip")).then((canvas) => {
-    const imgData = canvas.toDataURL("image/png");
-    doc.addImage(imgData, "PNG", 10, 10);
-    doc.save("payslip.pdf");
-  });
-}
-
-// Function to print payslip
-function printPayslip() {
-  const payslipContent = document.getElementById("payslip").innerHTML;
-  const newWindow = window.open("", "_blank", "height=500,width=600");
-
-  newWindow.document.write("<html><head><title>Payslip</title>");
-  newWindow.document.write("</head><body>");
-  newWindow.document.write(payslipContent);
-  newWindow.document.write("</body></html>");
-
-  newWindow.document.close();
-  newWindow.focus();
-  newWindow.print();
-  newWindow.close();
-
-  location.reload(); // Reload the page to restore the original content
-}
-
-// Function to autofill form with employee data
-function autoFillForm() {
-  const name = document.getElementById("name").value;
-  const employee = employees.find((emp) => emp.name === name);
-
-  if (employee) {
-    document.getElementById("position").value = employee.position;
-    document.getElementById("salary").value = employee.salary;
-    document.getElementById("overtime").value = employee.overtime;
-    document.getElementById("deductions").value = employee.deductions;
-    document.getElementById("tax").value = employee.taxRate;
-  } else {
-    document.getElementById("position").value = "";
-    document.getElementById("salary").value = "";
-    document.getElementById("overtime").value = "";
-    document.getElementById("deductions").value = "";
-    document.getElementById("tax").value = "";
+  const index = employees.findIndex((emp) => emp.name === employee.name);
+  if (index !== -1) {
+    employees[index] = employee;
+    localStorage.setItem('employees', JSON.stringify(employees));
   }
 }
 
-// Add event listener to name input for autofill
 document.getElementById("name").addEventListener("blur", autoFillForm);
 
-// Function to clear input fields
-function clearInputs() {
-  document.getElementById("name").value = "";
-  document.getElementById("position").value = "";
-  document.getElementById("salary").value = "";
-  document.getElementById("overtime").value = "";
-  document.getElementById("deductions").value = "";
-  document.getElementById("tax").value = "";
+function autoFillForm() {
+  const name = document.getElementById("name").value;
+
+  const employee = employees.find((emp) => emp.name === name);
+  if (employee) {
+    document.getElementById("email").value = employee.email;
+    document.getElementById("position").value = employee.position;
+    document.getElementById("salary").value = employee.salary;
+    document.getElementById("deductions").value = employee.deductions;
+    document.getElementById("tax").value = employee.taxRate;
+  }
 }
-// Function to download payslip as PDF
-function downloadPayslipAsPDF() {
+
+function clearInputs() {
+  document.getElementById("payslipForm").reset();
+  document.getElementById("payslip").classList.add("hidden");
+}
+
+function sendPayslipEmail(email, { name, position, salary, deductions, tax, netPay }) {
+  const subject = "Your Payslip";
+  const body = `
+    Dear ${name},
+
+    Here is your payslip:
+
+    Position: ${position}
+    Basic Salary: $${salary.toFixed(2)}
+    Deductions: $${deductions.toFixed(2)}
+    Tax: $${tax.toFixed(2)}
+    Net Pay: $${netPay.toFixed(2)}
+
+    Thank you,
+    NEC Liberia`;
+
+  Email.send({
+    SecureToken: "YOUR_SECURE_TOKEN",
+    To: email,
+    From: "your_email@example.com",
+    Subject: subject,
+    Body: body,
+  })
+    .then((message) => alert("Payslip sent successfully!"))
+    .catch((error) => console.error("Error sending email:", error));
+}
+
+function printPayslip() {
+  window.print();
+}
+
+function generatePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  html2canvas(document.getElementById("payslip")).then((canvas) => {
-    const imgData = canvas.toDataURL("image/png");
-    doc.addImage(imgData, "PNG", 10, 10);
-    doc.save("payslip.pdf");
+  doc.text(20, 20, "Payslip");
+  doc.text(20, 30, `Name: ${document.getElementById("payslipName").innerText}`);
+  doc.text(20, 40, `Email: ${document.getElementById("payslipEmail").innerText}`);
+  doc.text(20, 50, `Position: ${document.getElementById("payslipPosition").innerText}`);
+  doc.text(20, 60, `Basic Salary: ${document.getElementById("payslipSalary").innerText}`);
+  doc.text(20, 70, `Deductions: ${document.getElementById("payslipDeductions").innerText}`);
+  doc.text(20, 80, `Tax: ${document.getElementById("payslipTax").innerText}`);
+  doc.text(20, 90, `Net Pay: ${document.getElementById("payslipNetPay").innerText}`);
+
+  doc.save("payslip.pdf");
+}
+// Function to download payslip as a Word document
+function generateWordPayslip() {
+  const { Document, Packer, Paragraph, TextRun } = docx;
+
+  const doc = new Document();
+
+  const name = document.getElementById("payslipName").innerText;
+  const email = document.getElementById("payslipEmail").innerText;
+  const position = document.getElementById("payslipPosition").innerText;
+  const salary = document.getElementById("payslipSalary").innerText;
+  const deductions = document.getElementById("payslipDeductions").innerText;
+  const tax = document.getElementById("payslipTax").innerText;
+  const netPay = document.getElementById("payslipNetPay").innerText;
+
+  doc.addSection({
+    children: [
+      new Paragraph({
+        children: [new TextRun("Payslip").bold().size(24)],
+      }),
+      new Paragraph({
+        children: [new TextRun(name)],
+      }),
+      new Paragraph({
+        children: [new TextRun(email)],
+      }),
+      new Paragraph({
+        children: [new TextRun(position)],s
+      }),
+      new Paragraph({
+        children: [new TextRun(salary)],
+      }),
+      new Paragraph({
+        children: [new TextRun(deductions)],
+      }),
+      new Paragraph({
+        children: [new TextRun(tax)],
+      }),
+      new Paragraph({
+        children: [new TextRun(netPay)],
+      }),
+    ],
+  });
+
+  Packer.toBlob(doc).then((blob) => {
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "payslip.docx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   });
 }
-
