@@ -1,7 +1,7 @@
 let employees = [];
 
-window.onload = function() {
-  const storedEmployees = localStorage.getItem('employees');
+window.onload = function () {
+  const storedEmployees = localStorage.getItem("employees");
   if (storedEmployees) {
     employees = JSON.parse(storedEmployees);
   }
@@ -44,14 +44,32 @@ function generatePayslip() {
   sendPayslipEmail(email, payslipDetails);
 }
 
-function displayPayslip({ name, email, position, salary, deductions, tax, netPay }) {
+function displayPayslip({
+  name,
+  email,
+  position,
+  salary,
+  deductions,
+  tax,
+  netPay,
+}) {
   document.getElementById("payslipName").innerText = `Name: ${name}`;
   document.getElementById("payslipEmail").innerText = `Email: ${email}`;
-  document.getElementById("payslipPosition").innerText = `Position: ${position}`;
-  document.getElementById("payslipSalary").innerText = `Gross Incom: $${salary.toFixed(2)}`;
-  document.getElementById("payslipDeductions").innerText = `Incom Tax: $${deductions.toFixed(2)}`;
-  document.getElementById("payslipTax").innerText = `Nascorp Tax: $${tax.toFixed(2)}`;
-  document.getElementById("payslipNetPay").innerText = `Net Pay: $${netPay.toFixed(2)}`;
+  document.getElementById(
+    "payslipPosition"
+  ).innerText = `Position: ${position}`;
+  document.getElementById(
+    "payslipSalary"
+  ).innerText = `Gross Incom: $${salary.toFixed(2)}`;
+  document.getElementById(
+    "payslipDeductions"
+  ).innerText = `Incom Tax: $${deductions.toFixed(2)}`;
+  document.getElementById(
+    "payslipTax"
+  ).innerText = `Nascorp Tax: $${tax.toFixed(2)}`;
+  document.getElementById(
+    "payslipNetPay"
+  ).innerText = `Net Pay: $${netPay.toFixed(2)}`;
 
   document.getElementById("payslip").classList.remove("hidden");
 }
@@ -64,7 +82,14 @@ function addEmployee() {
   const deductions = parseFloat(document.getElementById("deductions").value);
   const taxRate = parseFloat(document.getElementById("tax").value);
 
-  if (!name || !position || !email || isNaN(salary) || isNaN(deductions) || isNaN(taxRate)) {
+  if (
+    !name ||
+    !position ||
+    !email ||
+    isNaN(salary) ||
+    isNaN(deductions) ||
+    isNaN(taxRate)
+  ) {
     alert("Please fill all the fields correctly.");
     return;
   }
@@ -84,7 +109,7 @@ function addEmployee() {
   };
 
   employees.push(employee);
-  localStorage.setItem('employees', JSON.stringify(employees));
+  localStorage.setItem("employees", JSON.stringify(employees));
   alert("Employee added successfully!");
 }
 
@@ -96,7 +121,7 @@ function updateYTD(employee, grossPay, deductions, netPay) {
   const index = employees.findIndex((emp) => emp.name === employee.name);
   if (index !== -1) {
     employees[index] = employee;
-    localStorage.setItem('employees', JSON.stringify(employees));
+    localStorage.setItem("employees", JSON.stringify(employees));
   }
 }
 
@@ -120,7 +145,10 @@ function clearInputs() {
   document.getElementById("payslip").classList.add("hidden");
 }
 
-function sendPayslipEmail(email, { name, position, salary, deductions, tax, netPay }) {
+function sendPayslipEmail(
+  email,
+  { name, position, salary, deductions, tax, netPay }
+) {
   const subject = "Your Payslip";
   const body = `
     Dear ${name},
@@ -157,12 +185,32 @@ function generatePDF() {
 
   doc.text(20, 20, "Payslip");
   doc.text(20, 30, `Name: ${document.getElementById("payslipName").innerText}`);
-  doc.text(20, 40, `Email: ${document.getElementById("payslipEmail").innerText}`);
-  doc.text(20, 50, `Position: ${document.getElementById("payslipPosition").innerText}`);
-  doc.text(20, 60, `Basic Salary: ${document.getElementById("payslipSalary").innerText}`);
-  doc.text(20, 70, `Deductions: ${document.getElementById("payslipDeductions").innerText}`);
+  doc.text(
+    20,
+    40,
+    `Email: ${document.getElementById("payslipEmail").innerText}`
+  );
+  doc.text(
+    20,
+    50,
+    `Position: ${document.getElementById("payslipPosition").innerText}`
+  );
+  doc.text(
+    20,
+    60,
+    `Basic Salary: ${document.getElementById("payslipSalary").innerText}`
+  );
+  doc.text(
+    20,
+    70,
+    `Deductions: ${document.getElementById("payslipDeductions").innerText}`
+  );
   doc.text(20, 80, `Tax: ${document.getElementById("payslipTax").innerText}`);
-  doc.text(20, 90, `Net Pay: ${document.getElementById("payslipNetPay").innerText}`);
+  doc.text(
+    20,
+    90,
+    `Net Pay: ${document.getElementById("payslipNetPay").innerText}`
+  );
 
   doc.save("payslip.pdf");
 }
@@ -192,7 +240,8 @@ function generateWordPayslip() {
         children: [new TextRun(email)],
       }),
       new Paragraph({
-        children: [new TextRun(position)],s
+        children: [new TextRun(position)],
+        s,
       }),
       new Paragraph({
         children: [new TextRun(salary)],
