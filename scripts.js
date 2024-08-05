@@ -60,13 +60,11 @@ function displayPayslip({
   ).innerText = `Position: ${position}`;
   document.getElementById(
     "payslipSalary"
-  ).innerText = `Gross Incom: $${salary.toFixed(2)}`;
+  ).innerText = `Gross Income: $${salary.toFixed(2)}`;
   document.getElementById(
     "payslipDeductions"
-  ).innerText = `Incom Tax: $${deductions.toFixed(2)}`;
-  document.getElementById(
-    "payslipTax"
-  ).innerText = `Nascorp Tax: $${tax.toFixed(2)}`;
+  ).innerText = `Income Tax: $${deductions.toFixed(2)}`;
+  document.getElementById("payslipTax").innerText = `Tax: $${tax.toFixed(2)}`;
   document.getElementById(
     "payslipNetPay"
   ).innerText = `Net Pay: $${netPay.toFixed(2)}`;
@@ -91,6 +89,12 @@ function addEmployee() {
     isNaN(taxRate)
   ) {
     alert("Please fill all the fields correctly.");
+    return;
+  }
+
+  const existingEmployee = employees.find((emp) => emp.name === name);
+  if (existingEmployee) {
+    alert("An employee with this name already exists.");
     return;
   }
 
@@ -214,7 +218,7 @@ function generatePDF() {
 
   doc.save("payslip.pdf");
 }
-// Function to download payslip as a Word document
+
 function generateWordPayslip() {
   const { Document, Packer, Paragraph, TextRun } = docx;
 
@@ -241,7 +245,6 @@ function generateWordPayslip() {
       }),
       new Paragraph({
         children: [new TextRun(position)],
-        s,
       }),
       new Paragraph({
         children: [new TextRun(salary)],
