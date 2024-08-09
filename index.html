@@ -76,16 +76,25 @@
       <div id="payslip" class="payslip hidden mt-5 shadow p-4 rounded bg-white">
         <img src="nec.png" alt="NEC Logo" class="logo mb-3" />
         <h2 class="text-center">Payslip</h2>
-        <p><strong>Name:</strong> <span id="payslipName"></span></p>
-        <p><strong>Email:</strong> <span id="payslipEmail"></span></p>
-        <p><strong>Position:</strong> <span id="payslipPosition"></span></p>
-        <p><strong>Gross Salary:</strong> $<span id="payslipSalary"></span></p>
-        <p>
-          <strong>Income Tax:</strong> $<span id="payslipDeductions"></span>
-        </p>
-        <p><strong>Nascorp Tax:</strong> $<span id="payslipTax"></span></p>
+        <div class="payslip-section">
+          <p><strong>Name:</strong> <span id="payslipName"></span></p>
+          <p><strong>Email:</strong> <span id="payslipEmail"></span></p>
+          <p><strong>Position:</strong> <span id="payslipPosition"></span></p>
+        </div>
         <hr />
-        <p><strong>Net Pay:</strong> $<span id="payslipNetPay"></span></p>
+        <div class="payslip-section">
+          <p>
+            <strong>Gross Salary:</strong> $<span id="payslipSalary"></span>
+          </p>
+          <p>
+            <strong>Income Tax:</strong> $<span id="payslipDeductions"></span>
+          </p>
+          <p><strong>Nascorp Tax:</strong> $<span id="payslipTax"></span></p>
+        </div>
+        <hr />
+        <div class="payslip-section net-pay-section">
+          <p><strong>Net Pay:</strong> $<span id="payslipNetPay"></span></p>
+        </div>
         <button
           type="button"
           class="btn btn-success btn-block"
