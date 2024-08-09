@@ -53,21 +53,14 @@ function displayPayslip({
   tax,
   netPay,
 }) {
-  document.getElementById("payslipName").innerText = `Name: ${name}`;
-  document.getElementById("payslipEmail").innerText = `Email: ${email}`;
-  document.getElementById(
-    "payslipPosition"
-  ).innerText = `Position: ${position}`;
-  document.getElementById(
-    "payslipSalary"
-  ).innerText = `Gross Income: $${salary.toFixed(2)}`;
-  document.getElementById(
-    "payslipDeductions"
-  ).innerText = `Income Tax: $${deductions.toFixed(2)}`;
-  document.getElementById("payslipTax").innerText = `Tax: $${tax.toFixed(2)}`;
-  document.getElementById(
-    "payslipNetPay"
-  ).innerText = `Net Pay: $${netPay.toFixed(2)}`;
+  document.getElementById("payslipName").textContent = name;
+  document.getElementById("payslipEmail").textContent = email;
+  document.getElementById("payslipPosition").textContent = position;
+  document.getElementById("payslipSalary").textContent = salary.toFixed(2);
+  document.getElementById("payslipDeductions").textContent =
+    deductions.toFixed(2);
+  document.getElementById("payslipTax").textContent = tax.toFixed(2);
+  document.getElementById("payslipNetPay").textContent = netPay.toFixed(2);
 
   document.getElementById("payslip").classList.remove("hidden");
 }
@@ -160,9 +153,9 @@ function sendPayslipEmail(
     Here is your payslip:
 
     Position: ${position}
-    Basic Salary: $${salary.toFixed(2)}
-    Deductions: $${deductions.toFixed(2)}
-    Tax: $${tax.toFixed(2)}
+    Gross Salary: $${salary.toFixed(2)}
+    Income Tax: $${deductions.toFixed(2)}
+    Nascorp Tax: $${tax.toFixed(2)}
     Net Pay: $${netPay.toFixed(2)}
 
     Thank you,
@@ -187,33 +180,41 @@ function generatePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  doc.text(20, 20, "Payslip");
-  doc.text(20, 30, `Name: ${document.getElementById("payslipName").innerText}`);
+  doc.text("Payslip", 10, 10);
   doc.text(
-    20,
-    40,
-    `Email: ${document.getElementById("payslipEmail").innerText}`
+    "Name: " + document.getElementById("payslipName").textContent,
+    10,
+    20
   );
   doc.text(
-    20,
-    50,
-    `Position: ${document.getElementById("payslipPosition").innerText}`
+    "Email: " + document.getElementById("payslipEmail").textContent,
+    10,
+    30
   );
   doc.text(
-    20,
-    60,
-    `Basic Salary: ${document.getElementById("payslipSalary").innerText}`
+    "Position: " + document.getElementById("payslipPosition").textContent,
+    10,
+    40
   );
   doc.text(
-    20,
-    70,
-    `Deductions: ${document.getElementById("payslipDeductions").innerText}`
+    "Gross Salary: $" + document.getElementById("payslipSalary").textContent,
+    10,
+    50
   );
-  doc.text(20, 80, `Tax: ${document.getElementById("payslipTax").innerText}`);
   doc.text(
-    20,
-    90,
-    `Net Pay: ${document.getElementById("payslipNetPay").innerText}`
+    "Income Tax: $" + document.getElementById("payslipDeductions").textContent,
+    10,
+    60
+  );
+  doc.text(
+    "Nascorp Tax: $" + document.getElementById("payslipTax").textContent,
+    10,
+    70
+  );
+  doc.text(
+    "Net Pay: $" + document.getElementById("payslipNetPay").textContent,
+    10,
+    80
   );
 
   doc.save("payslip.pdf");
@@ -224,13 +225,13 @@ function generateWordPayslip() {
 
   const doc = new Document();
 
-  const name = document.getElementById("payslipName").innerText;
-  const email = document.getElementById("payslipEmail").innerText;
-  const position = document.getElementById("payslipPosition").innerText;
-  const salary = document.getElementById("payslipSalary").innerText;
-  const deductions = document.getElementById("payslipDeductions").innerText;
-  const tax = document.getElementById("payslipTax").innerText;
-  const netPay = document.getElementById("payslipNetPay").innerText;
+  const name = document.getElementById("payslipName").textContent;
+  const email = document.getElementById("payslipEmail").textContent;
+  const position = document.getElementById("payslipPosition").textContent;
+  const salary = document.getElementById("payslipSalary").textContent;
+  const deductions = document.getElementById("payslipDeductions").textContent;
+  const tax = document.getElementById("payslipTax").textContent;
+  const netPay = document.getElementById("payslipNetPay").textContent;
 
   doc.addSection({
     children: [
