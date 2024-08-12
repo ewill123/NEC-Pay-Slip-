@@ -1,3 +1,4 @@
+/* Background image for the body */
 body::before {
   content: "";
   position: absolute;
@@ -9,102 +10,9 @@ body::before {
   background-size: cover;
   opacity: 0.3;
   z-index: -1;
-}.payslip-section p { 
-  font-weight: normal; /* Ensure that non-amount text is normal weight */ 
 }
 
-.payslip-section p span { 
-  font-weight: bold; 
-  font-size: 1.2rem; /* Increase font size of the amounts */ 
-}
-
-.net-pay-section { 
-  font-size: 1.5rem; /* Increase font size for the net pay section */ 
-  font-weight: bold; /* Ensure all amounts in this section are bold */ 
-}
-
-.btn-primary { 
-  background-color: #065200; 
-  border-color: #7339ab; 
-}
-
-.btn-primary:hover { 
-  background-color: #1100ff; 
-  border-color: #1100ff; 
-}
-
-.btn-secondary { 
-  background-color: #1f9ce4; 
-  border-color: #1f9ce4; 
-}
-
-.btn-clear { 
-  background-color: #ff0000; 
-  margin-top: 8px; 
-  border-radius: 10px; 
-  width: 141px; 
-  height: 45px; 
-  color: white; 
-}
-
-.btn-secondary:hover { 
-  background-color: #1100ff; 
-  border-color: #1100ff; 
-}
-
-.btn-success { 
-  background-color: #7339ab; 
-  border-color: #7339ab; 
-}
-
-.btn-success:hover { 
-  background-color: #625ad8; 
-  border-color: #625ad8; 
-}
-
-.btn-info { 
-  background-color: #1f9ce4; 
-  border-color: #1f9ce4; 
-}
-
-.btn-info:hover { 
-  background-color: #88f4ff; 
-  border-color: #88f4ff; 
-}
-
-.form-control { 
-  border: 1px solid #1f9ce4; 
-}
-
-.form-control:focus { 
-  border-color: #7339ab; 
-  box-shadow: 0 0 0 0.2rem rgba(115, 57, 171, 0.25); 
-}
-
-@media print { 
-  body * { 
-      visibility: hidden; 
-  } 
-  .payslip, .payslip * { 
-      visibility: visible; 
-  } 
-  .payslip { 
-      position: absolute; 
-      left: 0; 
-      top: 0; 
-      width: 100%; 
-  } 
-}
-
-.net-pay-section p { 
-  font-size: 1.5rem; /* Increase font size for net pay section */ 
-  font-weight: bold; /* Make text bold */ 
-}
-
-.net-pay-section p span { 
-  font-size: 1.5rem; /* Ensure amounts are larger */ 
-  font-weight: bold; /* Make amounts bold */ 
-}
+/* Payslip section styling */
 .payslip {
   max-width: 800px;
   margin: auto;
@@ -122,10 +30,163 @@ body::before {
 }
 .payslip-section p {
   margin: 5px 0;
+  font-weight: normal;
+}
+.payslip-section p span {
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 .net-pay-section {
+  background-color: #002060;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 20px;
+  font-size: 1.5rem;
   font-weight: bold;
 }
-.payslip hr {
-  margin: 20px 0;
+.net-pay-section p {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+.net-pay-section p span {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Header styling */
+.header {
+  background-color: #002060;
+  color: white;
+  text-align: center;
+  padding: 10px 0;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  position: relative;
+}
+.header img {
+  width: 50px;
+  position: absolute;
+  top: 10px;
+  left: 20px;
+}
+.header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+.header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+/* Modal styling */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Form control styling */
+.form-control {
+  border: 1px solid #1f9ce4;
+}
+.form-control:focus {
+  border-color: #7339ab;
+  box-shadow: 0 0 0 0.2rem rgba(115, 57, 171, 0.25);
+}
+
+/* Button styling */
+.btn-primary {
+  background-color: #065200;
+  border-color: #7339ab;
+}
+.btn-primary:hover {
+  background-color: #1100ff;
+  border-color: #1100ff;
+}
+.btn-secondary {
+  background-color: #1f9ce4;
+  border-color: #1f9ce4;
+}
+.btn-secondary:hover {
+  background-color: #1100ff;
+  border-color: #1100ff;
+}
+.btn-success {
+  background-color: #7339ab;
+  border-color: #7339ab;
+}
+.btn-success:hover {
+  background-color: #625ad8;
+  border-color: #625ad8;
+}
+.btn-info {
+  background-color: #1f9ce4;
+  border-color: #1f9ce4;
+}
+.btn-info:hover {
+  background-color: #88f4ff;
+  border-color: #88f4ff;
+}
+.btn-clear {
+  background-color: #ff0000;
+  margin-top: 8px;
+  border-radius: 10px;
+  width: 141px;
+  height: 45px;
+  color: white;
+}
+
+/* Print styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .payslip,
+  .payslip * {
+    visibility: visible;
+  }
+  .payslip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+  }
+  .header img {
+    width: 100px;
+  }
+}
+
+/* General HR styling */
+hr {
+  border: 0;
+  height: 1px;
+  background: #ddd;
 }
