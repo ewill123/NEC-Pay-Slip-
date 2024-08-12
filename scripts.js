@@ -239,8 +239,9 @@ function numberToWords(num) {
 }
 function printPayslip() {
     // Replace these with Base64-encoded image data if needed
-    const logoBase64 = 'data:image/png;base64,YOUR_BASE64_ENCODED_LOGO';
-    const secondaryLogoBase64 = 'data:image/png;base64,YOUR_BASE64_ENCODED_SECONDARY_LOGO';
+   const logoBase64 = 'data:image/png;base64,ACTUAL_BASE64_STRING_FOR_YOUR_LOGO';
+const secondaryLogoBase64 = 'data:image/png;base64,ACTUAL_BASE64_STRING_FOR_SECONDARY_LOGO';
+
 
     // Get the payslip HTML
     const payslip = document.querySelector(".payslip-container").outerHTML;
@@ -319,8 +320,8 @@ function printPayslip() {
     printWindow.document.write('</head><body>');
 
     // Replace logo src with Base64 data if needed
-    const modifiedPayslip = payslip.replace(/path_to_your_logo_image/g, logoBase64)
-                                    .replace(/path_to_your_secondary_logo_image/g, secondaryLogoBase64);
+   const modifiedPayslip = payslip.replace(/path_to_your_logo_image/g, logoBase64)
+                               .replace(/path_to_your_secondary_logo_image/g, secondaryLogoBase64);
 
     printWindow.document.write(modifiedPayslip); // Write the payslip HTML
     printWindow.document.write('</body></html>');
