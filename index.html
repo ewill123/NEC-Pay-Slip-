@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
 </head>
-<body>
+<body onload="handleClientLoad()">
     <div class="container mt-5">
         <header class="text-center mb-4">
             <img src="nec.png" alt="NEC Logo" class="logo mb-3" />
@@ -118,11 +118,20 @@
                 background: #ddd;
             }
         </style>
+        <div id="emailModal" class="modal">
+          <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Send Payslip via Email</h2>
+            <div id="emailModalContent"></div>
+            <button onclick="copyEmailContent()">Copy to Clipboard</button>
+          </div>
+        </div>
+        
         <title>Payslip</title>
   
-        <div class="payslip-container">
+        <div class="payslip">
             <div class="header">
-              <img src="images.jpeg" alt="Logo">
+              <img src="images.png" alt="Logo">
 
                 <h2>MONTHLY PAY SLIP</h2>
                 <h4>NATIONAL ELECTIONS COMMISSION (NEC)</h4>
@@ -134,7 +143,6 @@
                     <p><strong>Name:</strong> <span id="payslipName"></span></p>
                     <p><strong>Email:</strong> <span id="payslipEmail"></span></p>
                     <p><strong>Position:</strong> <span id="payslipPosition"></span></p>
-                   <!-- Add these lines to your payslip HTML where you want the date and rate to appear -->
 <p><strong>Rate:</strong> <span id="payslipRate"></span></p>
 <p><strong>Date:</strong> <span id="payslipDate"></span></p>
 
@@ -153,14 +161,17 @@
             </div>
             <div class="footer text-center">
                 <p><strong>BUDGET & FINANCE</strong></p>
+                <button id="sendEmailBtn">Send Email</button>
             </div>
             
         </div>
         </div>
-        <button type="button" class="btn btn-success btn-block mt-3" onclick="sendPayslipEmail()">Send Payslip</button>
+       
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="scripts.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+
 </body>
 </html>
