@@ -1,122 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.jsdelivr.net/npm/smtpjs@2.0.2/dist/smtp.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <link rel="stylesheet" href="styles.css" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payslip Generator</title>
-  </head>
-  <body>
-    <div class="container mt-5">
-      <header class="text-center mb-4">
-        <img src="nec.png" alt="NEC Logo" class="logo mb-3" />
-        <h1 class="header-title">PAY SLIP GENERATOR</h1>
-      </header>
-      <form id="payslipForm" class="shadow p-4 rounded bg-white">
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="name">Employee Name:</label>
-            <input type="text" class="form-control" id="name" required />
-          </div>
-          <div class="form-group col-md-6">
-            <label for="email">Employee Email:</label>
-            <input type="email" class="form-control" id="email" required />
-          </div>
-          <div class="form-group col-md-6">
-            <label for="position">Position:</label>
-            <input type="text" class="form-control" id="position" required />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="salary">Gross Income ($):</label>
-            <input type="number" class="form-control" id="salary" required />
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label for="deductions">Income Tax ($):</label>
-            <input
-              type="number"
-              class="form-control"
-              id="deductions"
-              required
-            />
-          </div>
-          <div class="form-group col-md-6">
-            <label for="tax">Nascorp Tax (%):</label>
-            <input type="number" class="form-control" id="tax" required />
-          </div>
-        </div>
-        <button
-          type="button"
-          class="btn btn-primary btn-block"
-          onclick="generatePayslip()"
-        >
-          Generate Payslip
-        </button>
-        <button
-          type="button"
-          class="btn btn-secondary btn-block"
-          onclick="addEmployee()"
-        >
-          Add Employee
-        </button>
-        <button type="button" class="btn-clear" onclick="clearInputs()">
-          Clear Inputs
-        </button>
-      </form>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
-      <div id="payslip" class="payslip hidden mt-5 shadow p-4 rounded bg-white">
-        <img src="nec.png" alt="NEC Logo" class="logo mb-3" />
-        <h2 class="text-center">Payslip</h2>
-        <div class="payslip-section">
-          <p><strong>Name:</strong> <span id="payslipName"></span></p>
-          <p><strong>Email:</strong> <span id="payslipEmail"></span></p>
-          <p><strong>Position:</strong> <span id="payslipPosition"></span></p>
+</head>
+<body>
+    <div class="container mt-5">
+        <header class="text-center mb-4">
+            <h1>PAY SLIP GENERATOR</h1>
+        </header>
+        <form id="payslipForm" class="shadow p-4 rounded bg-white">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="name">Employee Name:</label>
+                    <input type="text" class="form-control" id="name" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="email">Employee Email:</label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="position">Position:</label>
+                    <input type="text" class="form-control" id="position" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="salary">Gross Income ($):</label>
+                    <input type="number" class="form-control" id="salary" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="deductions">Income Tax ($):</label>
+                    <input type="number" class="form-control" id="deductions" required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="tax">Nascorp Tax (%):</label>
+                    <input type="number" class="form-control" id="tax" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="conversionRate">Liberian Dollar Conversion Rate:</label>
+                    <input type="number" class="form-control" id="conversionRate" step="0.01" value="160" required>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary btn-block" onclick="generatePayslip()">Generate Payslip</button>
+            <button type="button" class="btn btn-secondary btn-block" onclick="addEmployee()">Add Employee</button>
+            <button type="button" class="btn btn-info btn-block" onclick="updateConversionRate()">Update Conversion Rate</button>
+            <button type="button" class="btn btn-danger btn-block" onclick="clearInputs()">Clear Inputs</button>
+        </form>
+
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 0;
+            }
+            .payslip-container {
+                max-width: 600px;
+                margin: 20px auto;
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            .header {
+                background-color: #002060;
+                color: white;
+                text-align: center;
+                padding: 10px 0;
+                border-top-left-radius: 8px;
+                border-top-right-radius: 8px;
+                position: relative;
+            }
+            .header img {
+                width: 50px;
+                position: absolute;
+                top: 10px;
+                left: 20px;
+            }
+            .header h2 {
+                margin: 0;
+                font-size: 24px;
+            }
+            .header h4 {
+                margin: 0;
+                font-size: 14px;
+                font-weight: normal;
+            }
+            .header img.logo {
+                position: relative;
+                margin-top: 10px;
+            }
+            .content {
+                padding: 20px;
+            }
+            .payslip-section {
+                margin-bottom: 10px;
+            }
+            .payslip-section p {
+                margin: 5px 0;
+            }
+            .net-pay-section {
+                background-color: #002060;
+                color: white;
+                padding: 10px;
+                border-radius: 5px;
+                margin-top: 20px;
+            }
+            hr {
+                border: 0;
+                height: 1px;
+                background: #ddd;
+            }
+        </style>
+        <title>Payslip</title>
+  
+        <div class="payslip-container">
+            <div class="header">
+                <img src="path_to_your_logo_image" alt="Logo">
+                <h2>MONTHLY PAY SLIP</h2>
+                <h4>NATIONAL ELECTIONS COMMISSION (NEC)</h4>
+                <img class="logo" src="path_to_your_secondary_logo_image" alt="NEC Logo">
+            </div>
+            
+            <div class="content">
+                <div class="payslip-section">
+                    <p><strong>Name:</strong> <span id="payslipName"></span></p>
+                    <p><strong>Email:</strong> <span id="payslipEmail"></span></p>
+                    <p><strong>Position:</strong> <span id="payslipPosition"></span></p>
+                   <!-- Add these lines to your payslip HTML where you want the date and rate to appear -->
+<p><strong>Rate:</strong> <span id="payslipRate"></span></p>
+<p><strong>Date:</strong> <span id="payslipDate"></span></p>
+
+                </div>
+                <hr>
+                <div class="payslip-section">
+                    <p><strong>Gross Salary:</strong> $<span id="payslipSalary"></span></p>
+                    <p><strong>Income Tax:</strong> $<span id="payslipDeductions"></span></p>
+                    <p><strong>Nascorp Tax:</strong> $<span id="payslipTax"></span></p>
+                </div>
+                <hr>
+                <div class="payslip-section net-pay-section">
+                    <p><strong>Net Pay (USD):</strong> $<span id="payslipNetPayUSD"></span></p>
+                    <p><strong>Net Pay (LD):</strong> LD <span id="payslipNetPayLD"></span></p>
+                </div>
+            </div>
+            <div class="footer text-center">
+                <p><strong>BUDGET & FINANCE</strong></p>
+            </div>
+            
         </div>
-        <hr />
-        <div class="payslip-section">
-          <p>
-            <strong>Gross Salary:</strong> $<span id="payslipSalary"></span>
-          </p>
-          <p>
-            <strong>Income Tax:</strong> $<span id="payslipDeductions"></span>
-          </p>
-          <p><strong>Nascorp Tax:</strong> $<span id="payslipTax"></span></p>
         </div>
-        <hr />
-        <div class="payslip-section net-pay-section">
-          <p><strong>Net Pay:</strong> $<span id="payslipNetPay"></span></p>
-        </div>
-        <button
-          type="button"
-          class="btn btn-success btn-block"
-          onclick="printPayslip()"
-        >
-          Print Payslip
-        </button>
-        <button
-          type="button"
-          class="btn btn-info btn-block"
-          onclick="generatePDF()"
-        >
-          Download PDF
-        </button>
-      </div>
+        <button type="button" class="btn btn-success btn-block mt-3" onclick="sendPayslipEmail()">Send Payslip</button>
     </div>
-    <script src="https://smtpjs.com/v3/smtp.js"></script>
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script src="scripts.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/5.6.0/docx.min.js"></script>
-  </body>
+</body>
 </html>
