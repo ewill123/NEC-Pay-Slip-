@@ -1,12 +1,50 @@
-let employees = [];
-let conversionRate = parseFloat(localStorage.getItem("conversionRate")) || 1; // Default to 1 if not set
+let debounceTimer;
+function debounce(func, delay) {
+  return function (...args) {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => func.apply(this, args), delay);
+  };
+}
 
-window.onload = function () {
-  const storedEmployees = localStorage.getItem("employees");
-  if (storedEmployees) {
-    employees = JSON.parse(storedEmployees);
+// Use debounce for fetchEmployeeData
+document
+  .getElementById("name")
+  .addEventListener("input", debounce(fetchEmployeeData, 300));
+
+let employees = [];
+const firebaseConfig = {
+  apiKey: "AIzaSyB3MTQ1TAlv5XybVV2DZDI7v7sCzkVO8yw",
+  authDomain: "pay-slip-generator-37980.firebaseapp.com",
+  projectId: "pay-slip-generator-37980",
+  storageBucket: "pay-slip-generator-37980.appspot.com",
+  messagingSenderId: "174710674762",
+  appId: "1:174710674762:web:f8755cc8e51ed2ecb29db3",
+};
+function fetchEmployeeData() {
+  const enteredName = document
+    .getElementById("name")
+    .value.trim()
+    .toLowerCase();
+  console.log("Entered Name:", enteredName); // Debug line
+  // Rest of the code...
+}
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let conversionRate = parseFloat(localStorage.getItem("conversionRate")) || 1;
+
+window.onload = async function () {
+  try {
+    const snapshot = await db.collection("employees").get();
+    snapshot.forEach((doc) => {
+      employees.push({ id: doc.id, ...doc.data() });
+    });
+    document.getElementById("conversionRate").value = conversionRate;
+  } catch (error) {
+    console.error("Error fetching employees:", error);
   }
-  document.getElementById("conversionRate").value = conversionRate;
 };
 
 function generatePayslip() {
@@ -15,211 +53,50 @@ function generatePayslip() {
   const position = document.getElementById("position").value;
   const salary = parseFloat(document.getElementById("salary").value);
   const deductions = parseFloat(document.getElementById("deductions").value);
-  const taxRate = parseFloat(document.getElementById("tax").value);
-  const rate = parseFloat(document.getElementById("conversionRate").value); // Get the conversion rate
+  const tax = parseFloat(document.getElementById("tax").value);
 
-  // Check if all fields are filled
-  if (
-    !name ||
-    !email ||
-    !position ||
-    isNaN(salary) ||
-    isNaN(deductions) ||
-    isNaN(taxRate) ||
-    isNaN(rate)
-  ) {
-    alert("Please fill all the fields correctly.");
-    return;
-  }
+  // Calculate Net Pay in USD
+  const netPayUSD = salary - deductions - tax;
 
-  // Check if the employee exists
-  const employee = employees.find((emp) => emp.name === name);
-  if (!employee) {
-    alert("Employee not found. Please add the employee first.");
-    return;
-  }
+  // Calculate USD and LRD components
+  const netPayUSD80 = netPayUSD * 0.8;
+  const netPayUSD20 = netPayUSD * 0.2;
+  const netPayLD = netPayUSD20 * conversionRate;
 
-  const grossPay = salary;
-  const tax = (grossPay * taxRate) / 100;
-  const netPay = grossPay - deductions - tax;
-
-  const netPayUSD = netPay * 0.8;
-  const netPayLD = netPay * 0.2 * rate;
-
-  const payslipDetails = {
-    name,
-    email,
-    position,
-    salary,
-    deductions,
-    tax,
-    netPayUSD,
-    netPayLD,
-    rate, // Include rate in payslip details
-    date: new Date().toLocaleDateString(), // Get the current date
-  };
-
-  displayPayslip(payslipDetails);
-
-  updateYTD(employee, grossPay, deductions, netPay, netPayUSD, netPayLD);
-
-  document.getElementById("payslipForm").reset();
-
-  sendPayslipEmail(email, payslipDetails);
-}
-
-function displayPayslip({
-  name,
-  email,
-  position,
-  salary,
-  deductions,
-  tax,
-  netPayUSD,
-  netPayLD,
-  rate,
-  date,
-}) {
-  // Update payslip details
-  document.getElementById("payslipName").textContent = name;
-  document.getElementById("payslipEmail").textContent = email;
-  document.getElementById("payslipPosition").textContent = position;
-  document.getElementById("payslipSalary").textContent = salary.toFixed(2);
-  document.getElementById("payslipDeductions").textContent =
+  // Update the payslip display
+  document.getElementById("payslipName").innerText = name;
+  document.getElementById("payslipEmail").innerText = email;
+  document.getElementById("payslipPosition").innerText = position;
+  document.getElementById("payslipSalary").innerText = salary.toFixed(2);
+  document.getElementById("payslipDeductions").innerText =
     deductions.toFixed(2);
-  document.getElementById("payslipTax").textContent = tax.toFixed(2);
-  document.getElementById("payslipNetPayUSD").textContent =
-    netPayUSD.toFixed(2);
-  document.getElementById("payslipNetPayLD").textContent = netPayLD.toFixed(2);
-  document.getElementById("payslipRate").textContent = rate.toFixed(2); // Display the conversion rate
-  document.getElementById("payslipDate").textContent = date; // Display the date
+  document.getElementById("payslipTax").innerText = tax.toFixed(2);
+  document.getElementById("payslipNetPayUSD").innerText =
+    netPayUSD80.toFixed(2);
+  document.getElementById("payslipNetPayLD").innerText = netPayLD.toFixed(2);
+  document.getElementById("payslipRate").innerText = conversionRate.toFixed(2);
+  document.getElementById("payslipDate").innerText =
+    new Date().toLocaleDateString();
 
-  const payslipElement = document.getElementById("payslip");
-  if (payslipElement) {
-    payslipElement.classList.remove("hidden");
-  } else {
-    console.error('Element with ID "payslip" not found');
-  }
-}
+  // Remove "hidden" class to display the payslip
+  document.getElementById("payslip").classList.remove("d-none");
 
-function addEmployee() {
-  const email = document.getElementById("email").value;
-  const name = document.getElementById("name").value;
-  const position = document.getElementById("position").value;
-  const salary = parseFloat(document.getElementById("salary").value);
-  const deductions = parseFloat(document.getElementById("deductions").value);
-  const taxRate = parseFloat(document.getElementById("tax").value);
+  document.getElementById("sendEmailBtn").addEventListener("click", () =>
+    sendPayslipEmail(email, {
+      name,
+      position,
+      salary,
+      deductions,
+      tax,
+      netPayUSD: netPayUSD80,
+      netPayLD,
+      rate: conversionRate,
+      date: new Date().toLocaleDateString(),
+    })
+  );
 
-  if (
-    !name ||
-    !position ||
-    !email ||
-    isNaN(salary) ||
-    isNaN(deductions) ||
-    isNaN(taxRate)
-  ) {
-    alert("Please fill all the fields correctly.");
-    return;
-  }
-
-  const existingEmployee = employees.find((emp) => emp.name === name);
-  if (existingEmployee) {
-    alert("An employee with this name already exists.");
-    return;
-  }
-
-  const employeeId = employees.length + 1;
-  const employee = {
-    employeeId,
-    email,
-    name,
-    position,
-    salary,
-    deductions,
-    taxRate,
-    ytdEarnings: 0,
-    ytdDeductions: 0,
-    ytdNetPayUSD: 0,
-    ytdNetPayLD: 0,
-  };
-
-  employees.push(employee);
-  localStorage.setItem("employees", JSON.stringify(employees));
-  alert("Employee added successfully!");
-}
-
-function updateYTD(
-  employee,
-  grossPay,
-  deductions,
-  netPay,
-  netPayUSD,
-  netPayLD
-) {
-  const existingEmployee = employees.find((emp) => emp.name === employee.name);
-
-  if (existingEmployee) {
-    existingEmployee.ytdEarnings += grossPay;
-    existingEmployee.ytdDeductions += deductions;
-    existingEmployee.ytdNetPayUSD += netPayUSD;
-    existingEmployee.ytdNetPayLD += netPayLD;
-
-    const index = employees.findIndex(
-      (emp) => emp.name === existingEmployee.name
-    );
-    if (index !== -1) {
-      employees[index] = existingEmployee;
-      localStorage.setItem("employees", JSON.stringify(employees));
-    }
-  }
-}
-
-function updateConversionRate() {
-  const newRate = parseFloat(document.getElementById("conversionRate").value);
-
-  if (isNaN(newRate) || newRate <= 0) {
-    alert("Please enter a valid conversion rate.");
-    return;
-  }
-
-  conversionRate = newRate;
-  localStorage.setItem("conversionRate", conversionRate);
-  updateAllPayslips();
-  alert("Conversion rate updated successfully!");
-}
-
-function updateAllPayslips() {
-  employees = employees.map((employee) => {
-    const netPay =
-      employee.salary -
-      employee.deductions -
-      (employee.salary * employee.taxRate) / 100;
-    employee.netPayUSD = netPay * 0.8;
-    employee.netPayLD = netPay * 0.2 * conversionRate;
-    return employee;
-  });
-
-  localStorage.setItem("employees", JSON.stringify(employees));
-}
-
-document.getElementById("name").addEventListener("blur", autoFillForm);
-
-function autoFillForm() {
-  const name = document.getElementById("name").value;
-
-  const employee = employees.find((emp) => emp.name === name);
-  if (employee) {
-    document.getElementById("email").value = employee.email;
-    document.getElementById("position").value = employee.position;
-    document.getElementById("salary").value = employee.salary;
-    document.getElementById("deductions").value = employee.deductions;
-    document.getElementById("tax").value = employee.taxRate;
-  }
-}
-
-function clearInputs() {
-  document.getElementById("payslipForm").reset();
-  document.getElementById("payslip").classList.add("hidden");
+  // Clear the form after generating the payslip
+  clearForm();
 }
 
 function sendPayslipEmail(
@@ -262,84 +139,173 @@ function sendPayslipEmail(
   }
 }
 
-function handleClientLoad() {
-  gapi.load("client:auth2", initClient);
-}
+function addEmployee() {
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const position = document.getElementById("position").value;
+  const salary = parseFloat(document.getElementById("salary").value);
+  const deductions = parseFloat(document.getElementById("deductions").value);
+  const tax = parseFloat(document.getElementById("tax").value);
 
-function initClient() {
-  gapi.client
-    .init({
-      apiKey: "YOUR_API_KEY",
-      clientId: "YOUR_CLIENT_ID",
-      discoveryDocs: [
-        "https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest",
-      ],
-      scope: "https://www.googleapis.com/auth/gmail.send",
+  db.collection("employees")
+    .add({
+      name,
+      email,
+      position,
+      salary,
+      deductions,
+      tax,
     })
-    .then(() => {
-      // Sign in and send the email
-      gapi.auth2
-        .getAuthInstance()
-        .signIn()
-        .then(() => {
-          console.log("User signed in");
-        });
+    .then((docRef) => {
+      console.log("Employee added with ID:", docRef.id);
+      employees.push({
+        id: docRef.id,
+        name,
+        email,
+        position,
+        salary,
+        deductions,
+        tax,
+      });
     })
     .catch((error) => {
-      console.error("Error initializing Gmail API", error);
+      console.error("Error adding employee:", error);
     });
 }
 
-function sendEmail(to, subject, body) {
-  const email = [
-    `To: ${to}`,
-    "Content-Type: text/plain; charset=UTF-8",
-    "Content-Transfer-Encoding: 7bit",
-    `Subject: ${subject}`,
-    "",
-    body,
-  ].join("\n");
+function fetchEmployeeData() {
+  const enteredName = document
+    .getElementById("name")
+    .value.trim()
+    .toLowerCase();
 
-  const base64EncodedEmail = btoa(email)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
+  if (enteredName.length === 0) return;
 
-  gapi.client.gmail.users.messages
-    .send({
-      userId: "me",
-      resource: {
-        raw: base64EncodedEmail,
-      },
-    })
-    .then((response) => {
-      console.log("Email sent successfully!", response);
-    })
-    .catch((error) => {
-      console.error("Error sending email", error);
-    });
-}
-document.getElementById("sendEmailBtn").addEventListener("click", function () {
-  const recipient = "recipient@example.com";
-  const subject = "Subject of Email";
-  const body = "Body of the email content";
+  const employee = employees.find(
+    (emp) => emp.name.toLowerCase() === enteredName
+  );
 
-  sendEmail(recipient, subject, body);
-});
-function sendEmailAfterAuth(to, subject, body) {
-  gapi.auth2
-    .getAuthInstance()
-    .signIn()
-    .then(() => {
-      sendEmail(to, subject, body);
-    })
-    .catch((error) => {
-      console.error("Error during sign-in", error);
-    });
-}
-gapi.auth2.getAuthInstance().isSignedIn.listen((isSignedIn) => {
-  if (isSignedIn) {
-    console.log("User is signed in");
+  if (employee) {
+    document.getElementById("email").value = employee.email;
+    document.getElementById("position").value = employee.position;
+    document.getElementById("salary").value = employee.salary;
+    document.getElementById("deductions").value = employee.deductions;
+    document.getElementById("tax").value = employee.tax;
   } else {
-    console.log("User is signed out");
+    clearForm();
   }
-});
+}
+function updateConversionRate() {
+  conversionRate = parseFloat(document.getElementById("conversionRate").value);
+  localStorage.setItem("conversionRate", conversionRate);
+}
+
+function clearForm() {
+  document.getElementById("name").value = "";
+  document.getElementById("email").value = "";
+  document.getElementById("position").value = "";
+  document.getElementById("salary").value = "";
+  document.getElementById("deductions").value = "";
+  document.getElementById("tax").value = "";
+  document.getElementById("conversionRate").value = "160"; // Default value
+}
+
+function autofillForm(employeeId) {
+  const docRef = firebase.firestore().collection("employees").doc(employeeId);
+  docRef
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        const data = doc.data();
+        document.getElementById("name").value = data.name;
+        document.getElementById("position").value = data.position;
+        document.getElementById("salary").value = data.salary;
+        // Fill other fields as needed
+      } else {
+        console.log("No such document!");
+      }
+    })
+    .catch((error) => {
+      console.log("Error getting document:", error);
+    });
+}
+
+function printPayslip() {
+  const payslipContent = document.getElementById("payslip").innerHTML;
+
+  // Open a new window for printing
+  const printWindow = window.open("", "", "height=800,width=600");
+
+  printWindow.document.open();
+  printWindow.document.write("<html><head><title>Payslip</title>");
+
+  // Add Bootstrap and custom styles for printing
+  printWindow.document.write(
+    '<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />'
+  );
+  printWindow.document.write(
+    "<style> \
+      body { font-family: Arial, sans-serif; } \
+      @media print { \
+        body { margin: 0; } \
+        .container { max-width: 100%; } \
+        .hidden { display: none; } \
+        .payslip { \
+          border: 1px solid #ddd; \
+          padding: 20px; \
+          margin: 20px; \
+          background: #fff; \
+          page-break-after: auto; \
+          font-size: 18px; \
+          line-height: 1.6; \
+        } \
+        .payslip .header { \
+          display: flex; \
+          justify-content: space-between; \
+          align-items: center; \
+          padding-bottom: 10px; \
+          margin-bottom: 20px; \
+        } \
+        .payslip .header img { \
+          width: 80px; \
+          height: auto; \
+        } \
+        .payslip .title { \
+          text-align: center; \
+          font-size: 26px; \
+          font-weight: bold; \
+          margin-bottom: 20px; \
+        } \
+        .payslip .content h4 { \
+          margin: 12px 0; \
+          font-weight: bold; \
+          font-size: 20px; \
+        } \
+        .payslip .footer { \
+          text-align: center; \
+          border-top: 2px solid #000; \
+          padding-top: 10px; \
+          margin-top: 30px; \
+          font-size: 16px; \
+          font-weight: bold; \
+        } \
+        img { max-width: 100px; height: auto; } \
+        @page { size: A4; margin: 10mm; } \
+      } \
+    </style>"
+  );
+
+  printWindow.document.write("</head><body>");
+
+  // Insert the payslip content
+  printWindow.document.write(payslipContent);
+
+  printWindow.document.write("</body></html>");
+  printWindow.document.close();
+  printWindow.focus();
+
+  // Wait for the content to load before printing
+  printWindow.onload = function () {
+    printWindow.print();
+  };
+}
