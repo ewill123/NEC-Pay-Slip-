@@ -126,6 +126,9 @@ function generatePayslip() {
   // Remove "hidden" class to display the payslip
   document.getElementById("payslip").classList.remove("d-none");
 
+  // Show success message
+  alert("Payslip generated successfully!");
+
   document.getElementById("sendEmailBtn").addEventListener("click", () =>
     sendPayslipEmail(email, {
       name,
@@ -178,6 +181,9 @@ function sendPayslipEmail(
       "_blank",
       "width=600,height=600,scrollbars=yes,resizable=yes"
     );
+
+    // Show email sent message
+    alert("Email sent successfully!");
   } else {
     // If no email is provided, auto print the payslip
     printPayslip();
@@ -186,12 +192,22 @@ function sendPayslipEmail(
 
 function addEmployee() {
   // Get the form values
-  const name = document.getElementById("name").value;
+  const name = document.getElementById("name").value.trim().toLowerCase();
   const email = document.getElementById("email").value;
   const position = document.getElementById("position").value;
   const salary = parseFloat(document.getElementById("salary").value);
   const deductions = parseFloat(document.getElementById("deductions").value);
   const tax = parseFloat(document.getElementById("tax").value);
+
+  // Check for duplicate name
+  const existingEmployee = employees.find(
+    (emp) => emp.name.toLowerCase() === name
+  );
+
+  if (existingEmployee) {
+    alert("An employee with this name already exists.");
+    return;
+  }
 
   // Determine the collection based on the employee's role
   let collectionName;
@@ -232,6 +248,8 @@ function addEmployee() {
         deductions,
         tax,
       });
+      // Show success message
+      alert("Employee added successfully!");
     })
     .catch((error) => {
       console.error("Error adding employee:", error);
