@@ -1,17 +1,13 @@
 let debounceTimer;
-function debounce(func, delay) {
-  return function (...args) {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => func.apply(this, args), delay);
-  };
-}
 
 // Use debounce for fetchEmployeeData
 document
   .getElementById("name")
   .addEventListener("input", debounce(fetchEmployeeData, 300));
 
+// Initialize the employees array at the top
 let employees = [];
+
 const firebaseConfig = {
   apiKey: "AIzaSyB3MTQ1TAlv5XybVV2DZDI7v7sCzkVO8yw",
   authDomain: "pay-slip-generator-37980.firebaseapp.com",
@@ -20,14 +16,6 @@ const firebaseConfig = {
   messagingSenderId: "174710674762",
   appId: "1:174710674762:web:f8755cc8e51ed2ecb29db3",
 };
-function fetchEmployeeData() {
-  const enteredName = document
-    .getElementById("name")
-    .value.trim()
-    .toLowerCase();
-  console.log("Entered Name:", enteredName); // Debug line
-  // Rest of the code...
-}
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -46,6 +34,63 @@ window.onload = async function () {
     console.error("Error fetching employees:", error);
   }
 };
+
+// Debounce function to limit the rate of function calls
+function debounce(func, delay) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+function fetchEmployeeData() {
+  const enteredName = document
+    .getElementById("name")
+    .value.trim()
+    .toLowerCase();
+
+  if (enteredName.length === 0) {
+    clearForm();
+    return;
+  }
+
+  const employee = employees.find(
+    (emp) => emp.name.toLowerCase() === enteredName
+  );
+
+  if (employee) {
+    // Populate input fields with existing employee data
+    document.getElementById("email").value = employee.email;
+    document.getElementById("position").value = employee.position;
+    document.getElementById("salary").value = employee.salary;
+    document.getElementById("deductions").value = employee.deductions;
+    document.getElementById("tax").value = employee.tax;
+  } else {
+    // Clear form fields for new employee
+    document.getElementById("email").value = "";
+    document.getElementById("position").value = "";
+    document.getElementById("salary").value = "";
+    document.getElementById("deductions").value = "";
+    document.getElementById("tax").value = "";
+  }
+}
+
+function updateConversionRate() {
+  conversionRate = parseFloat(document.getElementById("conversionRate").value);
+  localStorage.setItem("conversionRate", conversionRate);
+}
+
+function clearForm() {
+  document.getElementById("email").value = "";
+  document.getElementById("position").value = "";
+  document.getElementById("salary").value = "";
+  document.getElementById("deductions").value = "";
+  document.getElementById("tax").value = "";
+  document.getElementById("conversionRate").value = "160"; // Default value
+}
+
+// Add additional functions here...
 
 function generatePayslip() {
   const name = document.getElementById("name").value;
@@ -140,6 +185,7 @@ function sendPayslipEmail(
 }
 
 function addEmployee() {
+  // Get the form values
   const name = document.getElementById("name").value;
   const email = document.getElementById("email").value;
   const position = document.getElementById("position").value;
@@ -147,7 +193,25 @@ function addEmployee() {
   const deductions = parseFloat(document.getElementById("deductions").value);
   const tax = parseFloat(document.getElementById("tax").value);
 
-  db.collection("employees")
+  // Determine the collection based on the employee's role
+  let collectionName;
+  switch (position.toLowerCase()) {
+    case "commissional":
+      collectionName = "commissional";
+      break;
+    case "director":
+      collectionName = "directors";
+      break;
+    case "senior staff":
+      collectionName = "senior_staff";
+      break;
+    default:
+      collectionName = "employee";
+      break;
+  }
+
+  // Add the new employee data to the appropriate Firestore collection
+  db.collection(collectionName)
     .add({
       name,
       email,
@@ -157,7 +221,8 @@ function addEmployee() {
       tax,
     })
     .then((docRef) => {
-      console.log("Employee added with ID:", docRef.id);
+      console.log(`Employee added to ${collectionName} with ID:`, docRef.id);
+      // Optionally update the local 'employees' array if you want to keep track locally
       employees.push({
         id: docRef.id,
         name,
@@ -175,7 +240,7 @@ function addEmployee() {
 
 function fetchEmployeeData() {
   const enteredName = document
-    .getElementById("name")
+    .getElementById("email")
     .value.trim()
     .toLowerCase();
 
