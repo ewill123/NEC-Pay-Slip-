@@ -57,7 +57,7 @@ function fetchEmployeeData() {
 
   const employee = employees.find(
     (emp) => emp.name.toLowerCase() === enteredName
-  );
+  ); 
 
   if (employee) {
     // Populate input fields with existing employee data
