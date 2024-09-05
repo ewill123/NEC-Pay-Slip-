@@ -1,20 +1,22 @@
 window.onload = async function () {
   try {
-    // Set up real-time listener for employees collection
-    db.collection("employees").onSnapshot((snapshot) => {
-      employees = []; // Clear the array before loading new data
-      snapshot.forEach((doc) => {
-        const employeeData = { id: doc.id, ...doc.data() };
-        employees.push(employeeData);
-        console.log("Loaded employee data:", employeeData); // Log each employee
-      });
-      document.getElementById("conversionRate").value = conversionRate;
+    const snapshot = await db.collection("employees").get();
+    snapshot.forEach((doc) => {
+      employees.push({ id: doc.id, ...doc.data() });
     });
+
+    // Set the initial value for the conversion rate input
+    document.getElementById("conversionRate").value = conversionRate;
+
+    // Attach the event listener to the conversion rate input
+    document
+      .getElementById("conversionRate")
+      .addEventListener("input", updateConversionRate);
+
+    // Initial call to generatePayslip to display default values
+    generatePayslip();
   } catch (error) {
-    console.error(
-      "Error setting up real-time listener or fetching employees:",
-      error
-    );
+    console.error("Error fetching employees:", error);
   }
 };
 
@@ -105,6 +107,9 @@ async function fetchEmployeeData() {
 function updateConversionRate() {
   conversionRate = parseFloat(document.getElementById("conversionRate").value);
   localStorage.setItem("conversionRate", conversionRate);
+
+  // Recalculate the payslip values with the new conversion rate
+  generatePayslip();
 }
 
 function clearForm() {
@@ -136,7 +141,9 @@ function generatePayslip() {
   const deductions = parseFloat(document.getElementById("deductions").value);
   const taxPercentage = parseFloat(document.getElementById("tax").value);
 
+  // Calculate the tax amount based on the new exchange rate
   const taxAmount = (taxPercentage / 100) * salary;
+
   const netPayAfterDeductions = salary - taxAmount - deductions;
   const netPayUSD80 = netPayAfterDeductions * 0.8;
   const netPayLD20 = netPayAfterDeductions * 0.2 * conversionRate;
@@ -296,3 +303,14 @@ function printPayslip() {
   printWindow.document.close();
   printWindow.print();
 }
+// Your existing JavaScript code
+
+document.addEventListener("contextmenu", function (e) {
+  e.preventDefault();
+});
+
+document.addEventListener("keydown", function (e) {
+  if (e.key === "F12" || (e.ctrlKey && e.shiftKey && e.key === "I")) {
+    e.preventDefault();
+  }
+});
